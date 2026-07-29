@@ -41,7 +41,7 @@ Four paths available. Route based on what the user asks:
 ### 1. Full Conversion (Default)
 **Trigger:** User provides one or more document/directory/glob paths without special instructions
 **Action:** Run all steps below (Steps 0–9)
-**Output:** Complete skill with SKILL.md, chapters/, glossary, patterns, cheatsheet
+**Output:** Complete skill with SKILL.md, capitulos/, glossary, patterns, cheatsheet
 
 ### 2. Analyze Only
 **Trigger:** User says "analyze", "just extract", or "I want to review before generating"
@@ -69,7 +69,7 @@ Throughout the workflow:
 - Identify the input paths and the optional skill slug.
 - If the last argument is not a file, folder, or glob that exists or matches any files, and it looks like a skill slug (e.g. lowercase hyphens, alphanumeric), treat it as `SKILL_NAME`.
 - Treat all other arguments as the list of `INPUT_PATHS`.
-- If any input path is an existing skill directory (contains `SKILL.md` and a `chapters/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
+- If any input path is an existing skill directory (contains `SKILL.md` and a `capitulos/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
 
 ---
 
@@ -326,7 +326,7 @@ For EACH chapter/major section identified in Step 3:
 
 Read the corresponding section of the extracted `full_text.txt` (use character offsets or grep for chapter headings).
 
-Create `$SKILLS_HOME/<skill_name>/chapters/ch<NN>-<slug>.md` using the structure below.
+Create `$SKILLS_HOME/<skill_name>/capitulos/ch<NN>-<slug>.md` using the structure below.
 
 **Adapt emphasis based on `BOOK_TYPE`:**
 - `technical` → prioritize "Code Examples", "Reference Tables", and "Commands & APIs" sections; preserve exact syntax
@@ -459,8 +459,8 @@ the relevant chapter file before answering.
 
 | # | Title | Key Frameworks |
 |---|-------|----------------|
-| [ch01](chapters/ch01-<slug>.md) | <Title> | <framework1>, <framework2> |
-| [ch02](chapters/ch02-<slug>.md) | <Title> | <framework1>, <framework2> |
+| [ch01](capitulos/ch01-<slug>.md) | <Title> | <framework1>, <framework2> |
+| [ch02](capitulos/ch02-<slug>.md) | <Title> | <framework1>, <framework2> |
 ...
 
 ## Topic Index
@@ -529,7 +529,7 @@ Then report to the user:
 
 Files generated:
   SKILL.md         — core frameworks + index   (~X tokens)
-  chapters/        — <N> chapter summaries     (~X tokens each, ~X total)
+  capitulos/       — <N> chapter summaries     (~X tokens each, ~X total)
   glossary.md      — key terms                 (~X tokens)
   patterns.md      — techniques & patterns     (~X tokens)
   cheatsheet.md    — quick reference           (~X tokens)
@@ -561,19 +561,19 @@ When performing an Update/Fold-in operation on an existing skill at `$SKILLS_HOM
 ### 1. Read Existing Skill Structure
 Read and parse the existing skill's files:
 - Read `$SKILLS_HOME/<skill_name>/SKILL.md` to parse the existing **Chapter Index**, **Topic Index**, metadata (author, total chapters), and **Core Frameworks**.
-- List all files in `$SKILLS_HOME/<skill_name>/chapters/` to find the highest chapter number (e.g. `ch12`).
+- List all files in `$SKILLS_HOME/<skill_name>/capitulos/` to find the highest chapter number (e.g. `ch12`).
 - Read `$SKILLS_HOME/<skill_name>/glossary.md`, `$SKILLS_HOME/<skill_name>/patterns.md`, and `$SKILLS_HOME/<skill_name>/cheatsheet.md` to see what terms and frameworks are already indexed.
 
 ### 2. Match Content & Identify Revisions vs. Additions
 Analyze the new extracted text in `<tempdir>/book_skill_work/full_text.txt` to identify if the new content represents:
 - **Updates/Revisions to existing chapters**: If a section of the new content directly updates or expands an existing chapter's topic, read the existing chapter file, merge the new details into it, and rewrite the file.
-- **New additions**: If the content introduces new chapters, papers, or separate sections, create **new chapter summary files** under `chapters/`. Start numbering these files after the highest existing chapter number (e.g. if the existing chapters stop at `ch12`, create `ch13-*.md`, `ch14-*.md`, etc.).
+- **New additions**: If the content introduces new chapters, papers, or separate sections, create **new chapter summary files** under `capitulos/`. Start numbering these files after the highest existing chapter number (e.g. if the existing chapters stop at `ch12`, create `ch13-*.md`, `ch14-*.md`, etc.).
 
 ### 3. Generate or Update Chapter Summary Files
 For each new or revised chapter:
 - Read the corresponding section of the extracted new text.
 - Follow the formatting guidelines in **Step 7** to build the summary.
-- Write/update the file in `$SKILLS_HOME/<skill_name>/chapters/`.
+- Write/update the file in `$SKILLS_HOME/<skill_name>/capitulos/`.
 
 ### 4. Merge Supporting Files
 - **Merge glossary.md**:
