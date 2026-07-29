@@ -134,10 +134,10 @@ def _collect_skill_files(skill_dir: Path) -> list[Path]:
                 raise ScanError(f"{filename} must be a real file")
             candidates.add(supporting_file)
 
-    chapters = root / "chapters"
+    chapters = root / "capitulos"
     if chapters.exists():
         if chapters.is_symlink() or not chapters.is_dir():
-            raise ScanError("chapters must be a real directory, not a symbolic link")
+            raise ScanError("capitulos must be a real directory, not a symbolic link")
         candidates.update(chapters.glob("*.md"))
 
     files = sorted(candidates, key=lambda path: path.relative_to(root).as_posix().lower())
