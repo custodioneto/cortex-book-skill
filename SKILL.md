@@ -19,7 +19,7 @@ Transform written knowledge into actionable agent skills by extracting structure
 
 ## Philosophy
 
-Books contain crystallized expertise: frameworks, principles, and techniques that took years to develop. This skill extracts that knowledge into a format GitHub Copilot CLI, Amp, Claude Code, or another compatible agent can leverage repeatedly.
+Books contain crystallized expertise: frameworks, principles, and techniques that took years to develop. This skill extracts that knowledge into a format Claude Code can leverage repeatedly.
 
 **Extract structure, not summaries.** A skill isn't a book report. It's a toolkit of:
 - Named frameworks (mental models with clear application)
@@ -486,7 +486,7 @@ or ask the agent directly.
 
 ---
 
-## Step 9.6 — Generate the Cortex pointer note
+## Step 9.4 — Generate the Cortex pointer note
 
 Create a lean pointer note in the Vault at:
 
@@ -589,7 +589,8 @@ Usage:
 
 If the slash command doesn't appear yet, restart the Claude Code session
 (or run `sync-commands` in PowerShell if the skill still doesn't show up —
-see the note in Task 1's staging doc about nested skill discovery).
+if it still doesn't appear, the skill is nested under `livros/` and may
+need manual discovery).
 ```
 
 ---

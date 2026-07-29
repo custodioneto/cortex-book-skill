@@ -131,8 +131,9 @@ Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, As
 # Process files matching a glob pattern
 /vault-livro-to-skill "~/books/*.epub" my-library
 
-# Update/fold new material into an existing skill folder
-/vault-livro-to-skill ~/articles/new-paper.pdf ~/.claude/skills/project-knowledge
+# Update/fold new material into an existing skill folder (just the slug — the
+# fixed Cortex Vault destination is resolved automatically, see Install above)
+/vault-livro-to-skill ~/articles/new-paper.pdf project-knowledge
 ```
 
 After the skill is created, use it like any other agent skill:
@@ -144,7 +145,7 @@ After the skill is created, use it like any other agent skill:
 /designing-data-intensive-apps "what chapters do you have?"
 ```
 
-In GitHub Copilot CLI you may need to run `/skills reload` after the file is written so the new skill appears in `/skills list`. Claude Code and Amp pick it up on the next session.
+Restart the Claude Code session for the new skill's slash command to appear. If it still doesn't show up, run `sync-commands` in PowerShell (see the fork notice and Install section above) — this fork targets Claude Code only.
 
 ---
 

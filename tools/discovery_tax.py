@@ -142,7 +142,7 @@ def main() -> int:
         sd = Path(args.skill_dir)
         skill_md = sd / "SKILL.md"
         core = count_tokens(skill_md.read_text(encoding="utf-8")) if skill_md.exists() else args.core_tokens
-        chs = sorted((sd / "chapters").glob("*.md")) if (sd / "chapters").is_dir() else []
+        chs = sorted((sd / "capitulos").glob("*.md")) if (sd / "capitulos").is_dir() else []
         # use the target chapter file if present, else the average of generated chapters
         comp_chapter = None
         for c in chs:
