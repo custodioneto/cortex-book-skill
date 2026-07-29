@@ -1,27 +1,25 @@
 ---
-name: book-to-skill
-description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, extracting frameworks, mental models, principles, techniques, and anti-patterns. Use when the user wants to study a document through GitHub Copilot CLI, Amp, or Claude Code, apply an author's frameworks while working, or build a reusable knowledge base from a file."
+name: vault-livro-to-skill
+description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, writing them straight into Custódio Neto's Obsidian Cortex Vault. Use when the user wants to study a document, apply an author's frameworks while working, or build a reusable knowledge base from a file, and wants the result to live in 99-system/skills/custom/livros/ with a pointer note in a 03-recursos/ subfolder the user chooses."
 ---
 
 <!--
-Cross-agent notes (informational; ignored by host agents):
-  - Compatible skill roots: GitHub Copilot CLI (~/.copilot/skills, ~/.agents/skills,
-    .github/skills, .claude/skills, .agents/skills), Amp (.agents/skills,
-    ~/.config/agents/skills, ~/.config/amp/skills), Claude Code (~/.claude/skills).
-  - `allowed-tools` is intentionally omitted to stay agent-neutral: Copilot CLI uses
-    `shell`/MCP-server names, Claude uses `Bash`/`Read`/`Write`/`Glob`/`Grep`, Amp
-    adds `shell_command`. The skill needs shell (to run extract.py) and file
-    read/write — each host will prompt for those on first use.
+Fork notes (informational; ignored by host agents):
+  - This fork targets Claude Code + the Cortex Vault only. It always writes the
+    generated skill to the Vault path in Step 5/6, not a probed host-specific root.
+  - `allowed-tools` is intentionally omitted; the skill needs Bash (to run
+    extract.py) and file read/write — Claude Code will prompt for those on
+    first use.
   - Argument hint: <path-to-document-folder-or-glob>... [skill-name-slug]
 -->
 
-# Book-to-Skill Converter
+# Vault Livro-to-Skill Converter
 
 Transform written knowledge into actionable agent skills by extracting structure — not producing summaries.
 
 ## Philosophy
 
-Books contain crystallized expertise: frameworks, principles, and techniques that took years to develop. This skill extracts that knowledge into a format GitHub Copilot CLI, Amp, Claude Code, or another compatible agent can leverage repeatedly.
+Books contain crystallized expertise: frameworks, principles, and techniques that took years to develop. This skill extracts that knowledge into a format Claude Code can leverage repeatedly.
 
 **Extract structure, not summaries.** A skill isn't a book report. It's a toolkit of:
 - Named frameworks (mental models with clear application)
@@ -43,7 +41,7 @@ Four paths available. Route based on what the user asks:
 ### 1. Full Conversion (Default)
 **Trigger:** User provides one or more document/directory/glob paths without special instructions
 **Action:** Run all steps below (Steps 0–9)
-**Output:** Complete skill with SKILL.md, chapters/, glossary, patterns, cheatsheet
+**Output:** Complete skill with SKILL.md, capitulos/, glossary, patterns, cheatsheet
 
 ### 2. Analyze Only
 **Trigger:** User says "analyze", "just extract", or "I want to review before generating"
@@ -62,33 +60,16 @@ Four paths available. Route based on what the user asks:
 
 ---
 
-## Skill Locations
-
-This converter can run from multiple skill systems. When looking for this converter's helper script or writing the generated book skill, prefer these locations in order:
-
-1. GitHub Copilot CLI personal skills: `~/.copilot/skills/`
-2. Cross-agent personal skills (Copilot + Amp): `~/.agents/skills/`
-3. Claude Code personal skills: `~/.claude/skills/`
-4. Project-local Copilot skills: `.github/skills/`
-5. Project-local Claude skills: `.claude/skills/`
-6. Project-local Amp / Copilot skills: `.agents/skills/`
-7. Amp global skills: `~/.config/agents/skills/`
-8. Amp legacy global skills: `~/.config/amp/skills/`
-
-For **generated** book skills, pick a destination that the user's host agent can actually discover (see Step 5). When more than one valid root exists, ask the user once and remember the answer for the session — do not silently default.
-
----
-
 ## Step 0 — Out-of-scope check
 
 If no arguments are provided, stop and respond:
-> "book-to-skill requires a supported document path, folder, or glob pattern. Usage: `book-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]`"
+> "vault-livro-to-skill requires a supported document path, folder, or glob pattern. Usage: `/vault-livro-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]`"
 
 Throughout the workflow:
 - Identify the input paths and the optional skill slug.
 - If the last argument is not a file, folder, or glob that exists or matches any files, and it looks like a skill slug (e.g. lowercase hyphens, alphanumeric), treat it as `SKILL_NAME`.
 - Treat all other arguments as the list of `INPUT_PATHS`.
-- If any input path is an existing skill directory (contains `SKILL.md` and a `chapters/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
+- If any input path is an existing skill directory (contains `SKILL.md` and a `capitulos/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
 
 ---
 
@@ -131,14 +112,8 @@ Run the extraction script, passing the input paths:
 ```bash
 SCRIPT_PATH=""
 for candidate in \
-  "$HOME/.copilot/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.claude/skills/book-to-skill/scripts/extract.py" \
-  ".github/skills/book-to-skill/scripts/extract.py" \
-  ".claude/skills/book-to-skill/scripts/extract.py" \
-  ".agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.config/agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.config/amp/skills/book-to-skill/scripts/extract.py"
+  "$HOME/.claude/skills/vault-livro-to-skill/scripts/extract.py" \
+  ".claude/skills/vault-livro-to-skill/scripts/extract.py"
 do
   if [ -f "$candidate" ]; then
     SCRIPT_PATH="$candidate"
@@ -147,7 +122,7 @@ do
 done
 
 if [ -z "$SCRIPT_PATH" ]; then
-  echo "Could not find scripts/extract.py for book-to-skill" >&2
+  echo "Could not find scripts/extract.py for vault-livro-to-skill" >&2
   exit 1
 fi
 
@@ -299,22 +274,15 @@ Otherwise, propose two options and let the user choose:
 - **By title**: lowercase hyphens from book title (e.g. `designing-data-intensive-apps`)
 
 Default to author-concept format if the book has a strong methodological identity.
+The slug MUST be kebab-case — lowercase letters, digits, and hyphens only, matching the rest of the Cortex Vault.
 
-Choose the destination skill root (`SKILLS_HOME`). Probe the user's filesystem for existing skill homes and pick by **the host the user is running in**:
+The destination is always fixed — this fork writes only into the Cortex Vault, never a probed host root:
 
-| Host agent | Personal skill root (probe in order) | Project-local root |
-|---|---|---|
-| **GitHub Copilot CLI** | `~/.copilot/skills` → `~/.agents/skills` | `.github/skills` → `.claude/skills` → `.agents/skills` |
-| **Amp** | `~/.agents/skills` → `~/.config/agents/skills` → `~/.config/amp/skills` | `.agents/skills` |
-| **Claude Code** | `~/.claude/skills` | `.claude/skills` |
+```
+SKILLS_HOME = C:\Users\custo\Dropbox\Obsidian\Cortex\99-system\skills\custom\livros\
+```
 
-Selection rules:
-1. If **exactly one** of the host's candidate roots exists on disk, use it without asking.
-2. If **none** exist (fresh machine), ask the user which root to create — present the host-appropriate options and remember the choice for the session. Do not silently pick.
-3. If the user explicitly asked for project-local output, prefer the project-local row.
-4. If you cannot identify the host, ask: "Which agent are you running this in — GitHub Copilot CLI, Amp, or Claude Code?"
-
-Set `SKILLS_HOME` to the selected root and check if `$SKILLS_HOME/<skill_name>/` already exists.
+Set `SKILLS_HOME` to that path and check if `$SKILLS_HOME/<skill_name>/` already exists.
 If it does, prompt the user to choose:
 1. **Update / Fold-in** (Mode 4) — integrate new files/content into the existing skill components.
 2. **Overwrite** — delete and regenerate the skill from scratch.
@@ -327,7 +295,7 @@ If the user selects **Update / Fold-in**, proceed immediately to the **Update / 
 ## Step 6 — Create skill directory structure
 
 ```bash
-mkdir -p "$SKILLS_HOME/<skill_name>/chapters"
+mkdir -p "$SKILLS_HOME/<skill_name>/capitulos"
 ```
 
 ---
@@ -358,7 +326,7 @@ For EACH chapter/major section identified in Step 3:
 
 Read the corresponding section of the extracted `full_text.txt` (use character offsets or grep for chapter headings).
 
-Create `$SKILLS_HOME/<skill_name>/chapters/ch<NN>-<slug>.md` using the structure below.
+Create `$SKILLS_HOME/<skill_name>/capitulos/ch<NN>-<slug>.md` using the structure below.
 
 **Adapt emphasis based on `BOOK_TYPE`:**
 - `technical` → prioritize "Code Examples", "Reference Tables", and "Commands & APIs" sections; preserve exact syntax
@@ -491,8 +459,8 @@ the relevant chapter file before answering.
 
 | # | Title | Key Frameworks |
 |---|-------|----------------|
-| [ch01](chapters/ch01-<slug>.md) | <Title> | <framework1>, <framework2> |
-| [ch02](chapters/ch02-<slug>.md) | <Title> | <framework1>, <framework2> |
+| [ch01](capitulos/ch01-<slug>.md) | <Title> | <framework1>, <framework2> |
+| [ch02](capitulos/ch02-<slug>.md) | <Title> | <framework1>, <framework2> |
 ...
 
 ## Topic Index
@@ -515,6 +483,70 @@ This skill covers the book content only. For hands-on implementation in your cod
 combine with project-specific tools. For topics beyond this book, check related skills
 or ask the agent directly.
 ```
+
+---
+
+## Step 9.4 — Generate the Cortex pointer note
+
+**Choose the destination subfolder.** List the real subfolders that currently exist under `C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\` (a live directory listing, not a hardcoded list — today that's `negocios`, `ocultismo`, `tecnologia`, but treat whatever is actually on disk as authoritative). Ask the user:
+
+> "Em qual subpasta de `03-recursos/` a nota-ponteiro deste livro deve ficar? Existentes: `<lista das subpastas encontradas>`. Digite um nome novo para criar outra."
+
+Store the answer as `<destino>` (kebab-case, matching the rest of the Vault). Ask this once per run — do not re-ask per chapter or per file.
+
+**If `<destino>` is a new name** (not among the listed subfolders), create it before writing the pointer note:
+1. Create the folder `C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\<destino>\`.
+2. Create `03-recursos\<destino>\_sobre.md`:
+   ```markdown
+   ---
+   tags: [meta]
+   ---
+   # <destino>
+
+   <one-line description derived from the book's subject/topic>
+   ```
+   This mirrors the `_sobre.md` already present in every other `03-recursos/*` subfolder (see `03-recursos/tecnologia/_sobre.md` for the exact shape). This does **not** go through the Vault's `revisar-dominio/` staging/approval flow that `/vault-note` uses for new domains — create it directly.
+
+**If `<destino>` matches an existing subfolder**, use it as-is — no folder creation needed.
+
+Create a lean pointer note in the Vault at:
+
+```
+C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\<destino>\<YYYY-MM-DD>-<skill_name>.md
+```
+
+`<YYYY-MM-DD>` is today's date (creation-date prefix, standard PARA content-note convention — `03-recursos/` is not `99-system/`, so it does take the date prefix). Content:
+
+```markdown
+---
+tags: [livro, skill, <2-3 tags específicas do tema do livro>]
+data: <YYYY-MM-DD>
+fechado: false
+---
+
+# <Full Title> (skill)
+
+Skill completa gerada a partir deste livro: `99-system/skills/custom/livros/<skill_name>/SKILL.md`
+
+**Autor(es):** <Author(s)>
+**Gerado em:** <YYYY-MM-DD>
+
+## Aplicado em
+
+<!-- Preencher manualmente conforme for aplicando o conhecimento em projetos reais -->
+-
+```
+
+Do not use a `[[WikiLink]]` to reach the skill — every generated skill's master file is literally named `SKILL.md`, so an Obsidian wikilink would be ambiguous across every skill in the Vault (and `SKILL.md` files are explicitly excluded from `_index.md` and never linked to, per the Vault's note conventions). Reference it as a plain code-formatted path instead, as shown above.
+
+Do not duplicate the skill's content here (no frameworks, no chapter list) — this note is a pointer plus a manually-maintained "where did I apply this" log, nothing else.
+
+Then update `_index.md` at `C:\Users\custo\Dropbox\Obsidian\Cortex\_index.md`:
+1. Read the table.
+2. Append a row: `[[<YYYY-MM-DD>-<skill_name>]]` | `03-recursos/<destino>` | `<tags from frontmatter>` | `<YYYY-MM-DD>` (Criado) | `<YYYY-MM-DD>` (Atualizado).
+3. Re-sort the whole table by the "Atualizado" column, descending (most recently updated first) — same rule the rest of the Vault's skills already follow.
+
+Do **not** run a full orphan-link sweep here (that is `vault-note`'s and `vault-daily-review`'s job, not this converter's) — just append and re-sort.
 
 ---
 
@@ -554,14 +586,15 @@ PY
 Then report to the user:
 
 ```
-✅ Skill created: $SKILLS_HOME/<skill_name>/
+✅ Skill created: 99-system/skills/custom/livros/<skill_name>/
+✅ Pointer note: 03-recursos/<destino>/<YYYY-MM-DD>-<skill_name>.md
 
 📚 Book: <Full Title> — <Author>
 📄 Pages: ~<N> | Chapters: <N>
 
 Files generated:
   SKILL.md         — core frameworks + index   (~X tokens)
-  chapters/        — <N> chapter summaries     (~X tokens each, ~X total)
+  capitulos/       — <N> chapter summaries     (~X tokens each, ~X total)
   glossary.md      — key terms                 (~X tokens)
   patterns.md      — techniques & patterns     (~X tokens)
   cheatsheet.md    — quick reference           (~X tokens)
@@ -575,13 +608,10 @@ Usage:
   Ask <skill_name> about <topic>        → find and explain a topic
   Ask <skill_name> for ch<N>            → dive into a specific chapter
 
-Reload (if your agent doesn't auto-detect new skills):
-  GitHub Copilot CLI:  /skills reload
-  Claude Code:         restart the session
-  Amp:                 restart the session
-
-Share this skill (Copilot ecosystem, optional):
-  gh skill publish $SKILLS_HOME/<skill_name>
+If the slash command doesn't appear yet, restart the Claude Code session
+(or run `sync-commands` in PowerShell if the skill still doesn't show up —
+if it still doesn't appear, the skill is nested under `livros/` and may
+need manual discovery).
 ```
 
 ---
@@ -593,19 +623,19 @@ When performing an Update/Fold-in operation on an existing skill at `$SKILLS_HOM
 ### 1. Read Existing Skill Structure
 Read and parse the existing skill's files:
 - Read `$SKILLS_HOME/<skill_name>/SKILL.md` to parse the existing **Chapter Index**, **Topic Index**, metadata (author, total chapters), and **Core Frameworks**.
-- List all files in `$SKILLS_HOME/<skill_name>/chapters/` to find the highest chapter number (e.g. `ch12`).
+- List all files in `$SKILLS_HOME/<skill_name>/capitulos/` to find the highest chapter number (e.g. `ch12`).
 - Read `$SKILLS_HOME/<skill_name>/glossary.md`, `$SKILLS_HOME/<skill_name>/patterns.md`, and `$SKILLS_HOME/<skill_name>/cheatsheet.md` to see what terms and frameworks are already indexed.
 
 ### 2. Match Content & Identify Revisions vs. Additions
 Analyze the new extracted text in `<tempdir>/book_skill_work/full_text.txt` to identify if the new content represents:
 - **Updates/Revisions to existing chapters**: If a section of the new content directly updates or expands an existing chapter's topic, read the existing chapter file, merge the new details into it, and rewrite the file.
-- **New additions**: If the content introduces new chapters, papers, or separate sections, create **new chapter summary files** under `chapters/`. Start numbering these files after the highest existing chapter number (e.g. if the existing chapters stop at `ch12`, create `ch13-*.md`, `ch14-*.md`, etc.).
+- **New additions**: If the content introduces new chapters, papers, or separate sections, create **new chapter summary files** under `capitulos/`. Start numbering these files after the highest existing chapter number (e.g. if the existing chapters stop at `ch12`, create `ch13-*.md`, `ch14-*.md`, etc.).
 
 ### 3. Generate or Update Chapter Summary Files
 For each new or revised chapter:
 - Read the corresponding section of the extracted new text.
 - Follow the formatting guidelines in **Step 7** to build the summary.
-- Write/update the file in `$SKILLS_HOME/<skill_name>/chapters/`.
+- Write/update the file in `$SKILLS_HOME/<skill_name>/capitulos/`.
 
 ### 4. Merge Supporting Files
 - **Merge glossary.md**:

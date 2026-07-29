@@ -5,7 +5,7 @@
 <h1 align="center">book-to-skill</h1>
 
 <p align="center">
-  <strong>Turn any technical book, document folder, or collection of sources into a unified agent skill — ready to study, reference, and use while you work in GitHub Copilot CLI, Amp, or Claude Code.</strong>
+  <strong>Turn any technical book, document folder, or collection of sources into a unified agent skill — ready to study, reference, and use while you work in Claude Code.</strong>
 </p>
 
 <p align="center">
@@ -43,10 +43,20 @@
   <strong>24×–51× fewer tokens than dumping the book into context</strong> to answer one question, measured on real books (<a href="#-the-discovery-loop-tax">how it's measured</a>).
 </p>
 
+> **This is a personal fork.** [`cortex-book-skill`](https://github.com/custodioneto/cortex-book-skill)
+> adapts the upstream [`book-to-skill`](https://github.com/virgiliojr94/book-to-skill)
+> project (MIT-licensed, © 2025 virgiliojr94) for one specific setup: Claude Code
+> plus a personal Obsidian "Cortex" Vault organized with the PARA method. The
+> extraction engine and skill-generation logic are unchanged; what's different is
+> *where* the generated skill lands and *what command* triggers it — see
+> [Usage](#-usage) below. If you don't use that exact setup, use the upstream
+> project instead — it supports GitHub Copilot CLI, Amp, and any filesystem
+> layout, none of which this fork does anymore.
+
 **How it works, in 3 steps:**
 
-1. **Point** it at a file, folder, or glob — `/book-to-skill ./my-book.pdf`
-2. **It distills** the book into a skill — frameworks, decision rules, anti-patterns, and per-chapter files. Structure, not a summary.
+1. **Point** it at a file, folder, or glob — `/vault-livro-to-skill ./my-book.pdf`
+2. **It distills** the book into a skill — frameworks, decision rules, anti-patterns, and per-chapter files. Structure, not a summary. The skill lands in `99-system/skills/custom/livros/<slug>/` in the Cortex Vault, plus a short pointer note in a `03-recursos/` subfolder you choose.
 3. **Your agent loads it on demand** — ask `/my-book replication` and it reads the right chapter and answers from the real content, no hallucination.
 
 ---
@@ -64,21 +74,25 @@ The usual workarounds don't help:
 
 Once installed, you just type `/your-book-slug replication` and the agent reads the right chapter and answers from the actual content. No hallucination. No digging through PDFs. The book becomes part of your workflow.
 
-Works with any host that supports the open [Agent Skills](https://github.com/agentskills/agentskills) standard — GitHub Copilot CLI, Amp, and Claude Code all read the same `SKILL.md` format.
+Works with any host that supports the open [Agent Skills](https://github.com/agentskills/agentskills) standard (the upstream project supports GitHub Copilot CLI, Amp, and Claude Code — this fork is Claude Code only, see the fork notice above).
 
 ---
 
 ## 📦 What it generates
 
-Running `/book-to-skill your-book.pdf` (or a folder, glob, or list of files) creates a full skill in your agent's skills directory (`~/.copilot/skills/<slug>/` for Copilot CLI, `~/.agents/skills/<slug>/` for Amp or cross-agent, `~/.claude/skills/<slug>/` for Claude Code):
+Running `/vault-livro-to-skill your-book.pdf` (or a folder, glob, or list of files) creates two artifacts in the Cortex Vault:
+
+**a) A full skill** at `99-system/skills/custom/livros/<slug>/`:
 
 | File | Purpose | Size |
 |------|---------|------|
 | `SKILL.md` | Core mental models + chapter index | ~4,000 tokens |
-| `chapters/ch01-*.md` … | One file per chapter, loaded on-demand | ~1,000 tokens each |
+| `capitulos/ch01-*.md` … | One file per chapter, loaded on-demand | ~1,000 tokens each |
 | `glossary.md` | Every key term, alphabetically sorted with chapter refs | ~1,500 tokens |
 | `patterns.md` | All techniques, algorithms, and design patterns | ~2,000 tokens |
 | `cheatsheet.md` | Decision tables and quick-reference rules | ~1,000 tokens |
+
+**b) A pointer note** at `03-recursos/<subpasta escolhida>/<YYYY-MM-DD>-<slug>.md` — a lean, dated note linking back to the skill above, with a manually-maintained section for logging where the knowledge got applied in real projects. The subfolder is chosen at invocation time, from your existing `03-recursos/*` subfolders or a new one you name.
 
 **Chapter files are loaded on-demand** — they don't count against the skill budget until you ask about that topic.
 
@@ -100,7 +114,7 @@ If you re-open a document often enough to wish you'd memorized it, it's a candid
 ## 🚀 Usage
 
 ```
-/book-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]
+/vault-livro-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]
 ```
 
 Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, AsciiDoc, HTML, RTF, MOBI/AZW/AZW3.
@@ -109,16 +123,17 @@ Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, As
 
 ```bash
 # Process several files together into a unified skill
-/book-to-skill ~/papers/paper1.pdf ~/notes/export.txt unified-research
+/vault-livro-to-skill ~/papers/paper1.pdf ~/notes/export.txt unified-research
 
 # Process all supported files in a folder together
-/book-to-skill ~/workspace/project-docs/ project-knowledge
+/vault-livro-to-skill ~/workspace/project-docs/ project-knowledge
 
 # Process files matching a glob pattern
-/book-to-skill "~/books/*.epub" my-library
+/vault-livro-to-skill "~/books/*.epub" my-library
 
-# Update/fold new material into an existing skill folder
-/book-to-skill ~/articles/new-paper.pdf ~/.claude/skills/project-knowledge
+# Update/fold new material into an existing skill folder (just the slug — the
+# fixed Cortex Vault destination is resolved automatically, see Install above)
+/vault-livro-to-skill ~/articles/new-paper.pdf project-knowledge
 ```
 
 After the skill is created, use it like any other agent skill:
@@ -130,7 +145,7 @@ After the skill is created, use it like any other agent skill:
 /designing-data-intensive-apps "what chapters do you have?"
 ```
 
-In GitHub Copilot CLI you may need to run `/skills reload` after the file is written so the new skill appears in `/skills list`. Claude Code and Amp pick it up on the next session.
+Restart the Claude Code session for the new skill's slash command to appear. If it still doesn't show up, run `sync-commands` in PowerShell (see the fork notice and Install section above) — this fork targets Claude Code only.
 
 ---
 
@@ -201,11 +216,11 @@ scripts/extract.py <paths…> --mode <technical|text>
           Generates master SKILL.md with core mental models
                │
                ▼
-          Skill written to one of:
-            ~/.copilot/skills/<slug>/   (GitHub Copilot CLI)
-            ~/.agents/skills/<slug>/    (Copilot CLI or Amp, cross-agent)
-            ~/.claude/skills/<slug>/    (Claude Code)
-          /tmp/book_skill_work/         🗑️  cleaned up
+          Skill written to:
+            99-system/skills/custom/livros/<slug>/           (Cortex Vault)
+          Pointer note written to:
+            03-recursos/<chosen-subfolder>/<date>-<slug>.md  (Cortex Vault)
+          /tmp/book_skill_work/                 🗑️  cleaned up
 ```
 
 **Extraction benchmark** (103-page technical book, CPU only):
@@ -349,61 +364,33 @@ book-to-skill is built for a different job: you want to go deep on a specific to
 
 ## 📥 Install
 
-> **Two ways to use it, do not confuse them:**
-> - **As an agent skill** (the `/book-to-skill` command in Claude Code, Copilot CLI, or Amp) → **`git clone` into your skills folder** (below). This is what gives you the slash command and the full convert-a-book flow.
-> - **As a standalone CLI** (just the text extractor) → `pip install book-to-skill`, then `book-to-skill --help`. This does **not** register the agent skill; it only installs the extraction engine. See [the CLI section](#standalone-cli-pip).
-
-The skill follows the open [Agent Skills](https://github.com/agentskills/agentskills) standard, so a single install works for any compatible host.
-
-**GitHub Copilot CLI** (personal skill):
+This fork only supports **Claude Code**, cloned into your personal skills folder:
 
 ```bash
-git clone https://github.com/virgiliojr94/book-to-skill.git ~/.copilot/skills/book-to-skill
-# then, in a `copilot` session:
-/skills reload
-/skills info book-to-skill
+git clone https://github.com/custodioneto/cortex-book-skill.git ~/.claude/skills/vault-livro-to-skill
 ```
 
-Or the cross-agent path that Copilot CLI and Amp both discover:
+Then, in any Claude Code session:
 
 ```bash
-git clone https://github.com/virgiliojr94/book-to-skill.git ~/.agents/skills/book-to-skill
-```
-
-**Claude Code**:
-
-Copy this into your Claude Code session:
-
-```
-Install book-to-skill: https://raw.githubusercontent.com/virgiliojr94/book-to-skill/master/SKILL.md
-```
-
-Or manually using standard `git clone` (ensures modular engine files are fetched correctly):
-
-```bash
-git clone https://github.com/virgiliojr94/book-to-skill.git ~/.claude/skills/book-to-skill
-```
-
-Then in any agent session:
-
-```bash
-/book-to-skill ~/path/to/your-book.pdf
+/vault-livro-to-skill ~/path/to/your-book.pdf
 # or
-/book-to-skill ~/path/to/your-book.epub
+/vault-livro-to-skill ~/path/to/your-book.epub
 ```
+
+The generated skill and pointer note land directly in the Cortex Vault (see [What it generates](#-what-it-generates)) — there's no separate `SKILLS_HOME` to choose.
 
 ### Standalone CLI (pip)
 
-`pip install book-to-skill` is a **separate, optional** path. It installs only the
-text-extraction engine as a CLI, for scripting or to grab the optional extractors;
-it does **not** register the `/book-to-skill` agent skill (use the `git clone` above
-for that).
+The extraction engine can still be installed and used standalone — this part is untouched from upstream and has nothing Cortex-specific about it:
 
 ```bash
 pip install "book-to-skill[pdf,epub,docx]"   # engine + optional extractors
 book-to-skill ~/path/to/book.pdf --mode text  # or: python -m book_to_skill ...
 book-to-skill --check                          # report which extractors are installed
 ```
+
+This does **not** register the `/vault-livro-to-skill` agent skill — use the `git clone` above for that.
 
 ---
 
