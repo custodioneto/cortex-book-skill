@@ -56,7 +56,7 @@
 **How it works, in 3 steps:**
 
 1. **Point** it at a file, folder, or glob — `/vault-livro-to-skill ./my-book.pdf`
-2. **It distills** the book into a skill — frameworks, decision rules, anti-patterns, and per-chapter files. Structure, not a summary. The skill lands in `99-system/skills/custom/livros/<slug>/` in the Cortex Vault, plus a short pointer note in `03-recursos/tecnologia/`.
+2. **It distills** the book into a skill — frameworks, decision rules, anti-patterns, and per-chapter files. Structure, not a summary. The skill lands in `99-system/skills/custom/livros/<slug>/` in the Cortex Vault, plus a short pointer note in a `03-recursos/` subfolder you choose.
 3. **Your agent loads it on demand** — ask `/my-book replication` and it reads the right chapter and answers from the real content, no hallucination.
 
 ---
@@ -92,7 +92,7 @@ Running `/vault-livro-to-skill your-book.pdf` (or a folder, glob, or list of fil
 | `patterns.md` | All techniques, algorithms, and design patterns | ~2,000 tokens |
 | `cheatsheet.md` | Decision tables and quick-reference rules | ~1,000 tokens |
 
-**b) A pointer note** at `03-recursos/tecnologia/<YYYY-MM-DD>-<slug>.md` — a lean, dated note linking back to the skill above, with a manually-maintained section for logging where the knowledge got applied in real projects.
+**b) A pointer note** at `03-recursos/<subpasta escolhida>/<YYYY-MM-DD>-<slug>.md` — a lean, dated note linking back to the skill above, with a manually-maintained section for logging where the knowledge got applied in real projects. The subfolder is chosen at invocation time, from your existing `03-recursos/*` subfolders or a new one you name.
 
 **Chapter files are loaded on-demand** — they don't count against the skill budget until you ask about that topic.
 
@@ -217,10 +217,10 @@ scripts/extract.py <paths…> --mode <technical|text>
                │
                ▼
           Skill written to:
-            99-system/skills/custom/livros/<slug>/   (Cortex Vault)
+            99-system/skills/custom/livros/<slug>/           (Cortex Vault)
           Pointer note written to:
-            03-recursos/tecnologia/<date>-<slug>.md  (Cortex Vault)
-          /tmp/book_skill_work/         🗑️  cleaned up
+            03-recursos/<chosen-subfolder>/<date>-<slug>.md  (Cortex Vault)
+          /tmp/book_skill_work/                 🗑️  cleaned up
 ```
 
 **Extraction benchmark** (103-page technical book, CPU only):
