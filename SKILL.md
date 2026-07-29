@@ -486,6 +486,49 @@ or ask the agent directly.
 
 ---
 
+## Step 9.6 — Generate the Cortex pointer note
+
+Create a lean pointer note in the Vault at:
+
+```
+C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\tecnologia\<YYYY-MM-DD>-<skill_name>.md
+```
+
+`<YYYY-MM-DD>` is today's date (creation-date prefix, standard PARA content-note convention — `03-recursos/` is not `99-system/`, so it does take the date prefix). Content:
+
+```markdown
+---
+tags: [livro, skill, <2-3 tags específicas do tema do livro>]
+data: <YYYY-MM-DD>
+fechado: false
+---
+
+# <Full Title> (skill)
+
+Skill completa gerada a partir deste livro: `99-system/skills/custom/livros/<skill_name>/SKILL.md`
+
+**Autor(es):** <Author(s)>
+**Gerado em:** <YYYY-MM-DD>
+
+## Aplicado em
+
+<!-- Preencher manualmente conforme for aplicando o conhecimento em projetos reais -->
+-
+```
+
+Do not use a `[[WikiLink]]` to reach the skill — every generated skill's master file is literally named `SKILL.md`, so an Obsidian wikilink would be ambiguous across every skill in the Vault (and `SKILL.md` files are explicitly excluded from `_index.md` and never linked to, per the Vault's note conventions). Reference it as a plain code-formatted path instead, as shown above.
+
+Do not duplicate the skill's content here (no frameworks, no chapter list) — this note is a pointer plus a manually-maintained "where did I apply this" log, nothing else.
+
+Then update `_index.md` at `C:\Users\custo\Dropbox\Obsidian\Cortex\_index.md`:
+1. Read the table.
+2. Append a row: `[[<YYYY-MM-DD>-<skill_name>]]` | `03-recursos/tecnologia` | `<tags from frontmatter>` | `<YYYY-MM-DD>` (Criado) | `<YYYY-MM-DD>` (Atualizado).
+3. Re-sort the whole table by the "Atualizado" column, descending (most recently updated first) — same rule the rest of the Vault's skills already follow.
+
+Do **not** run a full orphan-link sweep here (that is `vault-note`'s and `vault-daily-review`'s job, not this converter's) — just append and re-sort.
+
+---
+
 ## Step 9.5 — Scan the generated skill
 
 Before reporting success, loading the skill in another session, or publishing it, run the advisory security scan:
@@ -522,7 +565,8 @@ PY
 Then report to the user:
 
 ```
-✅ Skill created: $SKILLS_HOME/<skill_name>/
+✅ Skill created: 99-system/skills/custom/livros/<skill_name>/
+✅ Pointer note: 03-recursos/tecnologia/<YYYY-MM-DD>-<skill_name>.md
 
 📚 Book: <Full Title> — <Author>
 📄 Pages: ~<N> | Chapters: <N>
@@ -543,13 +587,9 @@ Usage:
   Ask <skill_name> about <topic>        → find and explain a topic
   Ask <skill_name> for ch<N>            → dive into a specific chapter
 
-Reload (if your agent doesn't auto-detect new skills):
-  GitHub Copilot CLI:  /skills reload
-  Claude Code:         restart the session
-  Amp:                 restart the session
-
-Share this skill (Copilot ecosystem, optional):
-  gh skill publish $SKILLS_HOME/<skill_name>
+If the slash command doesn't appear yet, restart the Claude Code session
+(or run `sync-commands` in PowerShell if the skill still doesn't show up —
+see the note in Task 1's staging doc about nested skill discovery).
 ```
 
 ---
