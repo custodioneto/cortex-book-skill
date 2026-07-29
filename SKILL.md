@@ -1,21 +1,19 @@
 ---
-name: book-to-skill
-description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, extracting frameworks, mental models, principles, techniques, and anti-patterns. Use when the user wants to study a document through GitHub Copilot CLI, Amp, or Claude Code, apply an author's frameworks while working, or build a reusable knowledge base from a file."
+name: vault-livro-to-skill
+description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, writing them straight into Custódio Neto's Obsidian Cortex Vault. Use when the user wants to study a document, apply an author's frameworks while working, or build a reusable knowledge base from a file, and wants the result to live in 99-system/skills/custom/livros/ with a pointer note in 03-recursos/tecnologia/."
 ---
 
 <!--
-Cross-agent notes (informational; ignored by host agents):
-  - Compatible skill roots: GitHub Copilot CLI (~/.copilot/skills, ~/.agents/skills,
-    .github/skills, .claude/skills, .agents/skills), Amp (.agents/skills,
-    ~/.config/agents/skills, ~/.config/amp/skills), Claude Code (~/.claude/skills).
-  - `allowed-tools` is intentionally omitted to stay agent-neutral: Copilot CLI uses
-    `shell`/MCP-server names, Claude uses `Bash`/`Read`/`Write`/`Glob`/`Grep`, Amp
-    adds `shell_command`. The skill needs shell (to run extract.py) and file
-    read/write — each host will prompt for those on first use.
+Fork notes (informational; ignored by host agents):
+  - This fork targets Claude Code + the Cortex Vault only. It always writes the
+    generated skill to the Vault path in Step 5/6, not a probed host-specific root.
+  - `allowed-tools` is intentionally omitted; the skill needs Bash (to run
+    extract.py) and file read/write — Claude Code will prompt for those on
+    first use.
   - Argument hint: <path-to-document-folder-or-glob>... [skill-name-slug]
 -->
 
-# Book-to-Skill Converter
+# Vault Livro-to-Skill Converter
 
 Transform written knowledge into actionable agent skills by extracting structure — not producing summaries.
 
@@ -82,7 +80,7 @@ For **generated** book skills, pick a destination that the user's host agent can
 ## Step 0 — Out-of-scope check
 
 If no arguments are provided, stop and respond:
-> "book-to-skill requires a supported document path, folder, or glob pattern. Usage: `book-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]`"
+> "vault-livro-to-skill requires a supported document path, folder, or glob pattern. Usage: `/vault-livro-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]`"
 
 Throughout the workflow:
 - Identify the input paths and the optional skill slug.
@@ -131,14 +129,14 @@ Run the extraction script, passing the input paths:
 ```bash
 SCRIPT_PATH=""
 for candidate in \
-  "$HOME/.copilot/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.claude/skills/book-to-skill/scripts/extract.py" \
-  ".github/skills/book-to-skill/scripts/extract.py" \
-  ".claude/skills/book-to-skill/scripts/extract.py" \
-  ".agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.config/agents/skills/book-to-skill/scripts/extract.py" \
-  "$HOME/.config/amp/skills/book-to-skill/scripts/extract.py"
+  "$HOME/.copilot/skills/vault-livro-to-skill/scripts/extract.py" \
+  "$HOME/.agents/skills/vault-livro-to-skill/scripts/extract.py" \
+  "$HOME/.claude/skills/vault-livro-to-skill/scripts/extract.py" \
+  ".github/skills/vault-livro-to-skill/scripts/extract.py" \
+  ".claude/skills/vault-livro-to-skill/scripts/extract.py" \
+  ".agents/skills/vault-livro-to-skill/scripts/extract.py" \
+  "$HOME/.config/agents/skills/vault-livro-to-skill/scripts/extract.py" \
+  "$HOME/.config/amp/skills/vault-livro-to-skill/scripts/extract.py"
 do
   if [ -f "$candidate" ]; then
     SCRIPT_PATH="$candidate"
@@ -147,7 +145,7 @@ do
 done
 
 if [ -z "$SCRIPT_PATH" ]; then
-  echo "Could not find scripts/extract.py for book-to-skill" >&2
+  echo "Could not find scripts/extract.py for vault-livro-to-skill" >&2
   exit 1
 fi
 
