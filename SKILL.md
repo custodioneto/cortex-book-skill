@@ -1,6 +1,6 @@
 ---
 name: vault-livro-to-skill
-description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, writing them straight into Custódio Neto's Obsidian Cortex Vault. Use when the user wants to study a document, apply an author's frameworks while working, or build a reusable knowledge base from a file, and wants the result to live in 99-system/skills/custom/livros/ with a pointer note in 03-recursos/tecnologia/."
+description: "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, writing them straight into Custódio Neto's Obsidian Cortex Vault. Use when the user wants to study a document, apply an author's frameworks while working, or build a reusable knowledge base from a file, and wants the result to live in 99-system/skills/custom/livros/ with a pointer note in a 03-recursos/ subfolder the user chooses."
 ---
 
 <!--
@@ -488,10 +488,31 @@ or ask the agent directly.
 
 ## Step 9.4 — Generate the Cortex pointer note
 
+**Choose the destination subfolder.** List the real subfolders that currently exist under `C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\` (a live directory listing, not a hardcoded list — today that's `negocios`, `ocultismo`, `tecnologia`, but treat whatever is actually on disk as authoritative). Ask the user:
+
+> "Em qual subpasta de `03-recursos/` a nota-ponteiro deste livro deve ficar? Existentes: `<lista das subpastas encontradas>`. Digite um nome novo para criar outra."
+
+Store the answer as `<destino>` (kebab-case, matching the rest of the Vault). Ask this once per run — do not re-ask per chapter or per file.
+
+**If `<destino>` is a new name** (not among the listed subfolders), create it before writing the pointer note:
+1. Create the folder `C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\<destino>\`.
+2. Create `03-recursos\<destino>\_sobre.md`:
+   ```markdown
+   ---
+   tags: [meta]
+   ---
+   # <destino>
+
+   <one-line description derived from the book's subject/topic>
+   ```
+   This mirrors the `_sobre.md` already present in every other `03-recursos/*` subfolder (see `03-recursos/tecnologia/_sobre.md` for the exact shape). This does **not** go through the Vault's `revisar-dominio/` staging/approval flow that `/vault-note` uses for new domains — create it directly.
+
+**If `<destino>` matches an existing subfolder**, use it as-is — no folder creation needed.
+
 Create a lean pointer note in the Vault at:
 
 ```
-C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\tecnologia\<YYYY-MM-DD>-<skill_name>.md
+C:\Users\custo\Dropbox\Obsidian\Cortex\03-recursos\<destino>\<YYYY-MM-DD>-<skill_name>.md
 ```
 
 `<YYYY-MM-DD>` is today's date (creation-date prefix, standard PARA content-note convention — `03-recursos/` is not `99-system/`, so it does take the date prefix). Content:
@@ -522,7 +543,7 @@ Do not duplicate the skill's content here (no frameworks, no chapter list) — t
 
 Then update `_index.md` at `C:\Users\custo\Dropbox\Obsidian\Cortex\_index.md`:
 1. Read the table.
-2. Append a row: `[[<YYYY-MM-DD>-<skill_name>]]` | `03-recursos/tecnologia` | `<tags from frontmatter>` | `<YYYY-MM-DD>` (Criado) | `<YYYY-MM-DD>` (Atualizado).
+2. Append a row: `[[<YYYY-MM-DD>-<skill_name>]]` | `03-recursos/<destino>` | `<tags from frontmatter>` | `<YYYY-MM-DD>` (Criado) | `<YYYY-MM-DD>` (Atualizado).
 3. Re-sort the whole table by the "Atualizado" column, descending (most recently updated first) — same rule the rest of the Vault's skills already follow.
 
 Do **not** run a full orphan-link sweep here (that is `vault-note`'s and `vault-daily-review`'s job, not this converter's) — just append and re-sort.
@@ -566,7 +587,7 @@ Then report to the user:
 
 ```
 ✅ Skill created: 99-system/skills/custom/livros/<skill_name>/
-✅ Pointer note: 03-recursos/tecnologia/<YYYY-MM-DD>-<skill_name>.md
+✅ Pointer note: 03-recursos/<destino>/<YYYY-MM-DD>-<skill_name>.md
 
 📚 Book: <Full Title> — <Author>
 📄 Pages: ~<N> | Chapters: <N>
