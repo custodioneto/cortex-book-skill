@@ -1,6 +1,9 @@
 *.pyc
 __pycache__/
 
+# Local editor settings
+.vscode/
+
 # Agent session traces (Stone CLI) — never commit
 .stone/
 **/.stone/
