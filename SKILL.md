@@ -604,14 +604,16 @@ Files generated:
 💡 Tip: check your agent's session cost/usage command to see actual token usage.
 
 Usage:
-  Ask for <skill_name>                  → load core frameworks
-  Ask <skill_name> about <topic>        → find and explain a topic
-  Ask <skill_name> for ch<N>            → dive into a specific chapter
+  Ask for <skill_name>                          → load core frameworks
+  Ask <skill_name> about <topic>                → find and explain a topic
+  Ask <skill_name> for ch<N>                    → dive into a specific chapter
+  /vault-getbook-<skill_name>                   → same thing, as a slash command
 
-If the slash command doesn't appear yet, restart the Claude Code session
-(or run `sync-commands` in PowerShell if the skill still doesn't show up —
-if it still doesn't appear, the skill is nested under `livros/` and may
-need manual discovery).
+Run `sync-commands` in PowerShell (`. $PROFILE; sync-commands`) to generate
+the /vault-getbook-<skill_name> slash command — it picks up every skill
+under custom/livros/ automatically and prefixes it with vault-getbook-, no
+per-book setup needed. If it doesn't appear in this session, restart Claude
+Code.
 ```
 
 ---
