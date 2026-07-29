@@ -60,23 +60,6 @@ Four paths available. Route based on what the user asks:
 
 ---
 
-## Skill Locations
-
-This converter can run from multiple skill systems. When looking for this converter's helper script or writing the generated book skill, prefer these locations in order:
-
-1. GitHub Copilot CLI personal skills: `~/.copilot/skills/`
-2. Cross-agent personal skills (Copilot + Amp): `~/.agents/skills/`
-3. Claude Code personal skills: `~/.claude/skills/`
-4. Project-local Copilot skills: `.github/skills/`
-5. Project-local Claude skills: `.claude/skills/`
-6. Project-local Amp / Copilot skills: `.agents/skills/`
-7. Amp global skills: `~/.config/agents/skills/`
-8. Amp legacy global skills: `~/.config/amp/skills/`
-
-For **generated** book skills, pick a destination that the user's host agent can actually discover (see Step 5). When more than one valid root exists, ask the user once and remember the answer for the session — do not silently default.
-
----
-
 ## Step 0 — Out-of-scope check
 
 If no arguments are provided, stop and respond:
@@ -129,14 +112,8 @@ Run the extraction script, passing the input paths:
 ```bash
 SCRIPT_PATH=""
 for candidate in \
-  "$HOME/.copilot/skills/vault-livro-to-skill/scripts/extract.py" \
-  "$HOME/.agents/skills/vault-livro-to-skill/scripts/extract.py" \
   "$HOME/.claude/skills/vault-livro-to-skill/scripts/extract.py" \
-  ".github/skills/vault-livro-to-skill/scripts/extract.py" \
-  ".claude/skills/vault-livro-to-skill/scripts/extract.py" \
-  ".agents/skills/vault-livro-to-skill/scripts/extract.py" \
-  "$HOME/.config/agents/skills/vault-livro-to-skill/scripts/extract.py" \
-  "$HOME/.config/amp/skills/vault-livro-to-skill/scripts/extract.py"
+  ".claude/skills/vault-livro-to-skill/scripts/extract.py"
 do
   if [ -f "$candidate" ]; then
     SCRIPT_PATH="$candidate"
@@ -297,22 +274,15 @@ Otherwise, propose two options and let the user choose:
 - **By title**: lowercase hyphens from book title (e.g. `designing-data-intensive-apps`)
 
 Default to author-concept format if the book has a strong methodological identity.
+The slug MUST be kebab-case — lowercase letters, digits, and hyphens only, matching the rest of the Cortex Vault.
 
-Choose the destination skill root (`SKILLS_HOME`). Probe the user's filesystem for existing skill homes and pick by **the host the user is running in**:
+The destination is always fixed — this fork writes only into the Cortex Vault, never a probed host root:
 
-| Host agent | Personal skill root (probe in order) | Project-local root |
-|---|---|---|
-| **GitHub Copilot CLI** | `~/.copilot/skills` → `~/.agents/skills` | `.github/skills` → `.claude/skills` → `.agents/skills` |
-| **Amp** | `~/.agents/skills` → `~/.config/agents/skills` → `~/.config/amp/skills` | `.agents/skills` |
-| **Claude Code** | `~/.claude/skills` | `.claude/skills` |
+```
+SKILLS_HOME = C:\Users\custo\Dropbox\Obsidian\Cortex\99-system\skills\custom\livros\
+```
 
-Selection rules:
-1. If **exactly one** of the host's candidate roots exists on disk, use it without asking.
-2. If **none** exist (fresh machine), ask the user which root to create — present the host-appropriate options and remember the choice for the session. Do not silently pick.
-3. If the user explicitly asked for project-local output, prefer the project-local row.
-4. If you cannot identify the host, ask: "Which agent are you running this in — GitHub Copilot CLI, Amp, or Claude Code?"
-
-Set `SKILLS_HOME` to the selected root and check if `$SKILLS_HOME/<skill_name>/` already exists.
+Set `SKILLS_HOME` to that path and check if `$SKILLS_HOME/<skill_name>/` already exists.
 If it does, prompt the user to choose:
 1. **Update / Fold-in** (Mode 4) — integrate new files/content into the existing skill components.
 2. **Overwrite** — delete and regenerate the skill from scratch.
@@ -325,7 +295,7 @@ If the user selects **Update / Fold-in**, proceed immediately to the **Update / 
 ## Step 6 — Create skill directory structure
 
 ```bash
-mkdir -p "$SKILLS_HOME/<skill_name>/chapters"
+mkdir -p "$SKILLS_HOME/<skill_name>/capitulos"
 ```
 
 ---
